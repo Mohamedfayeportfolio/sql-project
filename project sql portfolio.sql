@@ -25,16 +25,16 @@ SELECT TOP (1000) [Invoice_ID]
 
   
 --  -------------------------------------------------------------------------------------------------------------------------------------------
------------------------------ Feature Engeneering ---------------------------------------------------------------------------------------------
+----------------------------- Ingénierie des Caractéristiques ---------------------------------------------------------------------------------------------
 
--- time of date
+-- heure de la date
 SELECT time,
   (CASE 
     WHEN Time BETWEEN '00:00:00' AND '12:00:00' THEN 'morning'
     WHEN Time BETWEEN '12:01:00' AND '16:00:00' THEN 'afternoon'
     ELSE 'evening'
 	end
-  ) AS time_of_date
+  ) AS heure de la date
 FROM [sales data]
 
 ALTER TABLE [sales data]
@@ -49,7 +49,7 @@ CASE
 	end
 );
 
---- day_Name
+--- Nom du jour
 select Date,
  DATENAME(dw, Date)as day_name
 from [sales data]
@@ -60,7 +60,7 @@ ADD day_name VARCHAR(10);
 update [sales data]
 set day_name = DATENAME(dw, Date);
 
---- month name
+---Nom du mois
 SELECT Date,
        DATENAME(month, Date) AS MonthName
 FROM [sales data];
@@ -72,16 +72,15 @@ update [sales data]
 set monthname = DATENAME(month, Date)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
------------------------------------Generic------------------------------------------------------------------------------------------------------
+-----------------------------------générique------------------------------------------------------------------------------------------------------
 
-------how many unique cities does the data have?
+------Combien de villes uniques contient la donnée ?
 
 select 
     distinct City
 	from [sales data]
 
-----in which city is each branch
-
+----Dans quelle ville se trouve chaque succursale ?
 	select 
     distinct Branch
 	from [sales data]
@@ -93,19 +92,19 @@ select
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------------
----------------------------------product-------------------------------------------------------------------------------------------------------------
+---------------------------------produits-------------------------------------------------------------------------------------------------------------
 
------ how many unique product line doeas the data have ?
+-----Combien de lignes de produits uniques contient la donnée ?
  select 
      count(distinct Product_line)
  from [sales data]
 
 
- -- DECIMAL, according to your needs
+ -- DECIMAL, selon vos besoins
 ALTER TABLE [sales data]
 ALTER COLUMN quantity INT;
 
- -- What is the most selling product line
+ -- Quelle est la ligne de produit la plus vendue ?
 SELECT
 	SUM(quantity) as qty,
     product_line
@@ -113,11 +112,11 @@ FROM [sales data]
 GROUP BY product_line
 ORDER BY qty DESC;
 
--- Ajustez la pr�cision et l'�chelle selon vos besoins
+--Ajustez la précision et l'échelle.
 ALTER TABLE [sales data]
 ALTER COLUMN total DECIMAL(10, 2); 
 
--- What is the total revenue by month
+-- Quel est le revenu total par mois ?
 SELECT
 	monthname AS month,
 	SUM(total) AS total_revenue
@@ -125,12 +124,12 @@ FROM [sales data]
 GROUP BY monthname 
 ORDER BY total_revenue;
 
--- Ajustez la pr�cision et l'�chelle selon vos besoins
+--Ajustez la précision et l'échelle selon vos besoins.
 
 ALTER TABLE [sales data]
 ALTER COLUMN cogs DECIMAL(10, 2); 
 
--- What month had the largest COGS?
+-- Quel mois a eu le COGS le plus élevé ?
 SELECT
 	monthname AS month,
 	SUM(cogs) AS cogs
@@ -147,7 +146,7 @@ GROUP BY product_line
 ORDER BY total_revenue DESC;
 
 
--- What is the city with the largest revenue?
+-- Quelle est la ville avec le plus grand revenu ?
 SELECT
 	branch,
 	city,
@@ -156,11 +155,11 @@ FROM [sales data]
 GROUP BY city, branch 
 ORDER BY total_revenue;
 
--- Ajustez la pr�cision et l'�chelle selon vos besoins
+-- Ajustez la précision et l'échelle selon vos besoins.
 ALTER TABLE [sales data]
 ALTER COLUMN Tax_5 DECIMAL(10, 2); 
 
--- What product line had the largest TAX?
+-- Quelle ligne de produit a eu la plus grande TAXE ?
 SELECT
 	product_line,
 	AVG(Tax_5) as avg_tax
@@ -168,7 +167,6 @@ FROM [sales data]
 GROUP BY product_line
 ORDER BY avg_tax DESC;
 
--- which branch sold more products than average product sold
 -- Quelle succursale a vendu plus de produits que la moyenne des produits vendus ?
 SELECT 
     Branch,
@@ -178,7 +176,7 @@ GROUP BY Branch
 HAVING SUM(quantity) > (SELECT AVG(quantity) FROM [sales data] AS subquery);
 
 
--- What is the most common product line by gender
+-- Quelle est la ligne de produit la plus courante par sexe ?
 SELECT
 	gender,
     product_line,
@@ -191,21 +189,21 @@ ORDER BY total_cnt DESC;
 -- --------------------------------------------------------------------
 
 -- --------------------------------------------------------------------
--- -------------------------- Customers -------------------------------
+-- -------------------------- clients -------------------------------
 -- --------------------------------------------------------------------
 
--- How many unique customer types does the data have?
+-- Combien de types de clients uniques contient la donnée ?
 SELECT
 	DISTINCT customer_type
 FROM [sales data]
 
--- How many unique payment methods does the data have?
+-- Combien de méthodes de paiement uniques contient la donnée ?
 SELECT
 	DISTINCT payment
 FROM [sales data];
 
 
--- What is the most common customer type?
+--Quel est le type de client le plus courant ?
 SELECT
 	customer_type,
 	count(*) as count
@@ -213,7 +211,7 @@ FROM [sales data]
 GROUP BY customer_type
 ORDER BY count DESC;
 
--- Which customer type buys the most?
+--Quel type de client achète le plus ?
 SELECT
 	customer_type,
     COUNT(*)
@@ -221,7 +219,7 @@ FROM [sales data]
 GROUP BY customer_type;
 
 
--- What is the gender of most of the customers?
+--Quel est le genre de la plupart des clients ?
 SELECT
 	gender,
 	COUNT(*) as gender_cnt
@@ -229,7 +227,7 @@ FROM [sales data]
 GROUP BY gender
 ORDER BY gender_cnt DESC;
 
--- What is the gender distribution per branch?
+-- Quelle est la répartition des genres par succursale ?
 SELECT
 	gender,
 	COUNT(*) as gender_cnt
@@ -237,13 +235,13 @@ FROM [sales data]
 WHERE branch = 'C'
 GROUP BY gender
 ORDER BY gender_cnt DESC;
--- Gender per branch is more or less the same hence, I don't think has
--- an effect of the sales per branch and other factors.
+-- Le genre par succursale est plus ou moins le même,
+---donc je ne pense pas que cela ait un effet sur les ventes par succursale et d'autres facteurs.
 
 
--- Which time of the day do customers give most ratings?
+-- À quel moment de la journée les clients donnent-ils le plus d'évaluations ?
 
--- Ajustez la pr�cision et l'�chelle selon vos besoins
+-- Ajustons la précision et l'échelle.
 
 ALTER TABLE [sales data]
 ALTER COLUMN rating DECIMAL (2) ; 
@@ -254,11 +252,11 @@ SELECT
 FROM [sales data]
 GROUP BY time_of_day
 ORDER BY avg_rating DESC;
--- Looks like time of the day does not really affect the rating, its
--- more or less the same rating each time of the day.alter
+-- Il semble que l'heure de la journée n'affecte pas vraiment la notation,
+-- c'est plus ou moins la même notation à chaque heure de la journée.
 
 
--- Which time of the day do customers give most ratings per branch?
+-- À quelle heure de la journée les clients donnent-ils le plus d'évaluations par succursale ?
 
 SELECT
 	time_of_day,
@@ -268,23 +266,23 @@ WHERE branch = 'a'
 GROUP BY time_of_day
 ORDER BY avg_rating DESC;
 
--- Branch A and C are doing well in ratings, branch B needs to do a 
--- little more to get better ratings.
+-- Les succursales A et C obtiennent de bons résultats en termes de notation, 
+--tandis que la succursale B doit faire un peu plus d'efforts pour obtenir de meilleures notes.
 
 
--- Which day fo the week has the best avg ratings?
+-- Quel jour de la semaine a la meilleure moyenne de notes ?
 SELECT
 	day_name,
 	AVG(rating) AS avg_rating
 FROM [sales data]
 GROUP BY day_name 
 ORDER BY avg_rating DESC;
--- Mon, Tue and Friday are the top best days for good ratings
--- why is that the case, how many sales are made on these days?
+-- Lundi, mardi et vendredi sont les meilleurs jours pour de bonnes notes.
+-- Pourquoi est-ce le cas ? Combien de ventes sont réalisées ces jours-là ?
 
 
 
--- Which day of the week has the best average ratings per branch?
+-- Quel jour de la semaine a la meilleure moyenne de notes par succursale ?
 SELECT 
 	day_name,
 	COUNT(day_name) total_sales
@@ -297,10 +295,10 @@ ORDER BY total_sales DESC;
 -- --------------------------------------------------------------------
 
 -- --------------------------------------------------------------------
--- ---------------------------- Sales ---------------------------------
+-- ---------------------------- Ventes ---------------------------------
 -- --------------------------------------------------------------------
 
--- Number of sales made in each time of the day per weekday 
+-- Nombre de ventes réalisées à chaque heure de la journée par jour de la semaine
 SELECT
 	time_of_day,
 	COUNT(*) AS total_sales
@@ -309,10 +307,10 @@ WHERE day_name = 'Sunday'
 GROUP BY time_of_day 
 ORDER BY total_sales DESC;
 
--- Evenings experience most sales, the stores are 
--- filled during the evening hours
+-- Les soirées connaissent le plus de ventes,
+-- les magasins sont remplis pendant les heures du soir.
 
--- Which of the customer types brings the most revenue?
+-- Quel type de client génère le plus de revenus ?
 SELECT
 	customer_type,
 	SUM(total) AS total_revenue
@@ -320,7 +318,7 @@ FROM [sales data]
 GROUP BY customer_type
 ORDER BY total_revenue;
 
--- Which city has the largest tax/VAT percent?
+-- Quelle ville a le pourcentage de taxe/TVA le plus élevé ?
 SELECT
 	city,
     ROUND(AVG(Tax_5), 2) AS avg_tax_pct
@@ -328,7 +326,7 @@ FROM [sales data]
 GROUP BY city 
 ORDER BY avg_tax_pct DESC;
 
--- Which customer type pays the most in VAT?
+-- Quel type de client paie le plus de TVA ?
 SELECT
 	customer_type,
 	AVG(tax_5) AS total_tax
